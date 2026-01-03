@@ -1,4 +1,6 @@
 class OllamaCoder < Formula
+  include Language::Python::Virtualenv
+
   desc "Agentic coding assistant for Ollama - like Claude Code, but local!"
   homepage "https://github.com/lalomorales22/ollama-coder"
   url "https://files.pythonhosted.org/packages/de/74/a4b183469ba5327305a9d3a6f730bdde449906605cce103d441210c14fb9/ollama_coder-0.2.2.tar.gz"
