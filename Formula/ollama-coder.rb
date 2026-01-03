@@ -9,8 +9,11 @@ class OllamaCoder < Formula
 
   depends_on "python@3.11"
 
+  # Skip relocation of native extensions (pydantic-core has Rust binaries)
+  skip_clean "libexec"
+
   def install
-    # Create virtualenv with pip included (not --without-pip)
+    # Create virtualenv with pip included
     system "python3.11", "-m", "venv", libexec
     
     # Install ollama-coder with all dependencies
@@ -19,6 +22,11 @@ class OllamaCoder < Formula
     
     # Link the binary
     bin.install_symlink libexec/"bin/ollama-coder"
+  end
+
+  def post_install
+    # Ensure proper permissions
+    (libexec/"lib").chmod 0755 if (libexec/"lib").exist?
   end
 
   test do
