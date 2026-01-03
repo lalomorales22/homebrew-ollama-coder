@@ -10,11 +10,11 @@ class OllamaCoder < Formula
   depends_on "python@3.11"
 
   def install
-    # Create virtualenv with pip included
+    # Create virtualenv
     venv = virtualenv_create(libexec, "python3.11", system_site_packages: false)
     
-    # Install ollama-coder from PyPI (uses pre-built wheels)
-    venv.pip_install "ollama-coder==0.2.2"
+    # Use system pip install with dependencies (venv.pip_install uses --no-deps)
+    system libexec/"bin/python", "-m", "pip", "install", "ollama-coder==0.2.2"
     
     # Link the binary
     bin.install_symlink libexec/"bin/ollama-coder"
