@@ -9,9 +9,6 @@ class OllamaCoder < Formula
 
   depends_on "python@3.11"
 
-  # Skip relocation of native extensions (pydantic-core has Rust binaries)
-  skip_clean "libexec"
-
   def install
     # Create virtualenv with pip included
     system "python3.11", "-m", "venv", libexec
@@ -24,10 +21,11 @@ class OllamaCoder < Formula
     bin.install_symlink libexec/"bin/ollama-coder"
   end
 
-  def post_install
-    # Ensure proper permissions
-    (libexec/"lib").chmod 0755 if (libexec/"lib").exist?
-  end
+  # Disable Homebrew's library relocation for this formula
+  def post_install; end
+
+  # Skip all library/binary analysis
+  skip_clean :all
 
   test do
     assert_match "OllamaCoder", shell_output("#{bin}/ollama-coder --help")
