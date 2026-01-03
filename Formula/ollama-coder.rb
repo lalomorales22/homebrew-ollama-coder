@@ -10,10 +10,11 @@ class OllamaCoder < Formula
   depends_on "python@3.11"
 
   def install
-    venv = virtualenv_create(libexec, "python3.11")
-    # Use pip to install with pre-built wheels (avoids Rust compilation for pydantic-core)
-    system libexec/"bin/pip", "install", "--upgrade", "pip"
-    system libexec/"bin/pip", "install", "ollama-coder==0.2.2"
+    # Create virtualenv with pip included
+    venv = virtualenv_create(libexec, "python3.11", system_site_packages: false)
+    
+    # Install ollama-coder from PyPI (uses pre-built wheels)
+    venv.pip_install "ollama-coder==0.2.2"
     
     # Link the binary
     bin.install_symlink libexec/"bin/ollama-coder"
