@@ -1,6 +1,4 @@
 class OllamaCoder < Formula
-  include Language::Python::Virtualenv
-
   desc "Agentic coding assistant for Ollama - like Claude Code, but local!"
   homepage "https://github.com/lalomorales22/ollama-coder"
   url "https://files.pythonhosted.org/packages/de/74/a4b183469ba5327305a9d3a6f730bdde449906605cce103d441210c14fb9/ollama_coder-0.2.2.tar.gz"
@@ -10,18 +8,22 @@ class OllamaCoder < Formula
   depends_on "python@3.11"
 
   def install
-    # Create virtualenv with pip included (not using virtualenv_create which uses --without-pip)
+    # Create empty venv structure - actual install happens in post_install
+    # to avoid Homebrew's dylib relocation processing
     system "python3.11", "-m", "venv", libexec
     
-    # Upgrade pip first
+    # Create wrapper script that will work after post_install completes
+    (bin/"ollama-coder").write <<~EOS
+      #!/bin/bash
+      exec "#{libexec}/bin/ollama-coder" "$@"
+    EOS
+  end
+
+  def post_install
+    # Install packages AFTER Homebrew's library processing is complete
+    # This avoids the pydantic-core dylib relocation error
     system libexec/"bin/pip", "install", "--upgrade", "pip"
-    
-    # Install ollama-coder and all dependencies
     system libexec/"bin/pip", "install", "--no-cache-dir", "ollama-coder==#{version}"
-    
-    # Create wrapper script instead of symlink to avoid dylib relocation issues
-    (bin/"ollama-coder").write_env_script libexec/"bin/ollama-coder",
-      PATH: "#{libexec}/bin:${PATH}"
   end
 
   def caveats
