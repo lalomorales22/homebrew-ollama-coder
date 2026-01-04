@@ -10,24 +10,27 @@ class OllamaCoder < Formula
   depends_on "python@3.11"
 
   def install
-    # Create virtualenv with pip included
-    system "python3.11", "-m", "venv", libexec
+    # Create virtualenv using Homebrew's helper
+    venv = virtualenv_create(libexec, "python3.11")
     
-    # Install ollama-coder with all dependencies
-    system libexec/"bin/pip", "install", "--upgrade", "pip"
-    system libexec/"bin/pip", "install", "ollama-coder==0.2.2"
+    # Install ollama-coder and all dependencies
+    system libexec/"bin/pip", "install", "--no-cache-dir", "ollama-coder==#{version}"
     
-    # Link the binary
-    bin.install_symlink libexec/"bin/ollama-coder"
+    # Create wrapper script instead of symlink to avoid dylib relocation issues
+    (bin/"ollama-coder").write_env_script libexec/"bin/ollama-coder",
+      PATH: "#{libexec}/bin:${PATH}"
   end
 
-  # Disable Homebrew's library relocation for this formula
-  def post_install; end
-
-  # Skip all library/binary analysis
-  skip_clean :all
+  def caveats
+    <<~EOS
+      ollama-coder requires Ollama to be running.
+      Start Ollama with: ollama serve
+      
+      Then run: ollama-coder
+    EOS
+  end
 
   test do
-    assert_match "OllamaCoder", shell_output("#{bin}/ollama-coder --help")
+    assert_match "usage", shell_output("#{bin}/ollama-coder --help 2>&1", 0)
   end
 end
