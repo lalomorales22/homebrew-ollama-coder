@@ -10,8 +10,11 @@ class OllamaCoder < Formula
   depends_on "python@3.11"
 
   def install
-    # Create virtualenv using Homebrew's helper
-    venv = virtualenv_create(libexec, "python3.11")
+    # Create virtualenv with pip included (not using virtualenv_create which uses --without-pip)
+    system "python3.11", "-m", "venv", libexec
+    
+    # Upgrade pip first
+    system libexec/"bin/pip", "install", "--upgrade", "pip"
     
     # Install ollama-coder and all dependencies
     system libexec/"bin/pip", "install", "--no-cache-dir", "ollama-coder==#{version}"
